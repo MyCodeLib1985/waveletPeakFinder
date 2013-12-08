@@ -28,7 +28,6 @@ I.e. the maximum number of wavenumbers (or a similar X value) that the ridge lin
 """
 
 # CWT Transform parameters
-extensionFactor = 15*20
 lowerBound = 1
 upperBound = 70
 steps = 90
@@ -156,38 +155,6 @@ def getPeakInfo(ridgeLines,data,waveletCoeff):
 
 """
 
-Pad the ends of the 1D array data with a specified number of points. Array is padded by
-extending a straight line based on the gradient of the last point of the array.
-
-"""
-def _padSpectra(data):
-
-    # Calculated the spacing between the wave numbers.
-    seperation = data.x[1] - data.x[0]
-
-    # For readability...
-    eF = extensionFactor
-
-    # Arrays for extrapolated wave numbers and intensities.
-    waveNumbersExtrap = np.zeros(np.size(data.x) + 2*eF)
-    intensitiesExtrap = np.zeros(np.size(data.x) + 2*eF)
-
-    # Extrapolate the wavenumber array.
-    waveNumberInterpolator = interpolate.UnivariateSpline(np.arange(0,np.size(data.x)),\
-                                                          data.x,k=1)
-    waveNumbersExtrap = waveNumberInterpolator(np.arange(0,len(waveNumbersExtrap)))
-
-    # Extrapolation the intensity array.
-    intensitiesExtrap[0:eF] = np.interp(waveNumbersExtrap[0:eF],\
-                                                 data.x[0:1],data.y[0:1])
-    intensitiesExtrap[eF:-eF] = data.y
-    intensitiesExtrap[-eF:] = np.interp(waveNumbersExtrap[-eF:],\
-                                                 data.x[-1:],data.y[-1:])
-
-    return [waveNumbersExtrap,intensitiesExtrap,eF]
-
-"""
-
 Processes spectral data and returns a structured array of peak information. Peak can then be
 filtered based on ridge line length, signal to noise ratio and scale values.
 
@@ -195,13 +162,10 @@ filtered based on ridge line length, signal to noise ratio and scale values.
 def getPeaks(waveNumbers,intensities):
 
     data = _spectra(waveNumbers,intensities)
-    paddedSpectra = _padSpectra(data)
-    extensionFactor = paddedSpectra[2]
 
     # Take the CWT of the spectra. Trim the result to remove padding.
-    waveletCoeff = signal.cwt(paddedSpectra[1], signal.ricker, \
-                                   np.linspace(lowerBound,upperBound,steps))\
-            [:,extensionFactor:-extensionFactor]
+    waveletCoeff = signal.cwt(intensities, signal.ricker, \
+                                   np.linspace(lowerBound,upperBound,steps))
     # Flip the matrix so the highest wavelet coefficient is the top row
     waveletCoeff = np.flipud(waveletCoeff)
 
