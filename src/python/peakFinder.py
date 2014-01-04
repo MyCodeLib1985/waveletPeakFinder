@@ -12,9 +12,6 @@ it should work for most datasets.
 Parameters
 ----------
 
-extensionFactor: The number of points to pad the data with to avoid spurious peaks due to
-endpoint effects.
-
 lowerBound: The lowest value of the scale factor to use in the wavelet transform
 upperBound: The highest value of the scale factor to use in the wavelet transform
 steps: The number of scale factors we want between the highest and lowest bounds
