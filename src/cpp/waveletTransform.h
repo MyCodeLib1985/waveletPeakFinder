@@ -2,14 +2,17 @@
 
 const float pi = 3.14159265359;
 
-const int SCALEMAX = 20;
+const int SCALEMAX = 30;
 
 float ricker (float t, float sigma) {
 
-        float wavelet = 2/(sqrt(3*sigma) * pow(pi,0.25)) * (1 - (pow(t,2)/pow(sigma,2))
-                * exp((-1*pow(t,2)/(2*pow(sigma,2)))));
+    // Calculate the exponential part of the Ricker wavelet.
+    float expPart = -1*pow(t,2)/(2*pow(sigma,2));
 
-        return wavelet;
+    float wavelet = 2/(sqrt(3*sigma) * pow(pi,0.25)) * (1 - (pow(t,2)/pow(sigma,2))
+            * exp(expPart));
+
+    return wavelet;
 }
 
 float CWT (std::vector<float> &rawData, float scale, float trans, float t) {
@@ -19,7 +22,9 @@ float CWT (std::vector<float> &rawData, float scale, float trans, float t) {
     float numericalIntegration = 0;
 
     for (int i=0; i<rawData.size()-1;i++) {
-        numericalIntegration += ((ricker(rawData[i]-i/scale,1) + ricker(rawData[i+1]-i/scale,1))/2);
+        float delta_lambda = rawData[i+1] - rawData[i];
+        numericalIntegration += delta_lambda * ((ricker(rawData[i]-i/scale,1) +
+                    ricker((rawData[i+1]-i)/scale,1))/2);
     }
 
     return 1/sqrt(fabs(scale)) * (t * numericalIntegration);
