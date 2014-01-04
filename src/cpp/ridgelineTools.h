@@ -42,10 +42,10 @@ bool isCloseEnough (std::vector<ridgePoint> &ridgeLines, float currentScale, flo
 }
 
 // Filter out valid ridgelines
-void filterRidgeLines (std::vector<ridgePoint> &ridgeLines, std::vector<std::vector<float> >
+void getRidgeLines (std::vector<ridgePoint> &ridgeLines, std::vector<std::vector<float> >
     &maximaArray) {
 
-    for (int scale=SCALEMAX;scale>0;scale--) {
+    for (int scale=0;scale<SCALEMAX;scale++) {
         for (int j=0;j<maximaArray[scale].size();j++) {
             // Check if this point already belongs to a ridge line.
             if (isNewPoint(ridgeLines, scale, j)) {
@@ -58,4 +58,5 @@ void filterRidgeLines (std::vector<ridgePoint> &ridgeLines, std::vector<std::vec
             }
         }
     }
+
 }
