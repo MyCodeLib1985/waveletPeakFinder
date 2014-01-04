@@ -2,10 +2,27 @@
 
 // Helper function to determine whether we have used this point already. Points can only belong
 // to one ridgeline.
-bool newPoint (std::vector<ridgePoint> &ridgeLines, float currentScale, int currentCol) {
+bool isNewPoint (std::vector<ridgePoint> &ridgeLines, float currentScale, int currentCol) {
 
     for (int i=0;i<ridgeLines.size();i++) {
         if (ridgeLines[i].scale == currentScale & ridgeLines.col == currentCol) {
+            return false;
+        }
+    }
+
+    return true;
+
+}
+
+// Helper function to check if new ridge line points belong to any nearby ridge lines. This is
+// done by checking that there is a point within 'scaleWindow' and 'colWindow' of the point.
+// These values are currently hard coded, but can be made variable as the search broadens at
+// higher scale factors.
+bool closeEnough (std::vector<ridgePoint> &ridgeLines, float currentScale, float currentCol) {
+
+    for (int i=0;i<ridgeLines.size();i++) {
+        if (fabs(ridgeLines[i].scale - currentScale) < 3 && fabs(ridgeLines[i].col -
+                    currentCol) < 5) {
             return true;
         }
     }
@@ -14,12 +31,20 @@ bool newPoint (std::vector<ridgePoint> &ridgeLines, float currentScale, int curr
 
 }
 
-void filterRidgeLines (std::vector<ridgePoint> &ridgeLines) {
 
-    for (int i=0;i<maximaArray.size();i++) {
-        for (int j=0;j<maximaArray[i].size();j++) {
+// Filter out valid ridgelines
+void filterRidgeLines (std::vector<ridgePoint> &ridgeLines, std::vector<std::vector<float> >
+    &maximaArray) {
 
+    for (int scale=SCALEMAX;scale>0;scale--) {
+        for (int j=0;j<maximaArray[scale].size();j++) {
+            // Check if we have already used this point.
+            if (isNewPoint(ridgeLines, scale, j)) {
+                if (closeEnough(ridgeLines, scale, j)) {
+                    ridgeLines.push_back({scale,j});
+
+                }
+            }
         }
     }
-
 }
