@@ -2,7 +2,9 @@
 #include <fstream>
 #include <sstream>
 #include <vector>
-#include "wavelet.h"
+#include "waveletTransform.h"
+#include "cwtArrayTools.h"
+#include "ridgelineTools.h"
 
 int main(int argc, char** argv) {
 
@@ -41,7 +43,6 @@ int main(int argc, char** argv) {
 
     }
 
-
     // Create a (SCALEMAX,len(intensities) 2D array to hold the resultant data from the wavelet
     // transform.
     std::vector<std::vector<float> >
@@ -50,6 +51,8 @@ int main(int argc, char** argv) {
     // Take the wavelet transform of the data.
     waveletTransform(rawData_intensities, waveletSpace);
 
+    // Write the wavelet transform matrix to file for plotting/debugging. These are not really
+    // need except for illustration purposes.
     std::ofstream outputFile ("waveletMatrix.txt");
     for (int i=0;i<waveletSpace.size();i++) {
         for (int j=0;j<waveletSpace[i].size();j++) {
@@ -57,6 +60,34 @@ int main(int argc, char** argv) {
             outputFile << "\n";
         }
     }
+
+    // Create an array of the local maxima of the ridge lines. We search for local maxima in a
+    // sliding window with width 3 and save these maxima in a binary array, set to 1 for the
+    // presence of a maxima and 0 otherwise. This is the array that will be used to build the
+    // ridge lines.
+
+    std::vector<std::vector<float> > maximaArray(SCALEMAX,
+            std::vector<float>(rawData_intensities.size(),0));
+
+    findMaxima(maximaArray,waveletSpace);
+
+    // write the wavelet transform matrix to file for plotting/debugging.
+    std::ofstream maxima_outputfile ("maximamatrix.txt");
+    for (int i=0;i<maximaArray.size();i++) {
+        for (int j=0;j<maximaArray[i].size();j++) {
+            maxima_outputfile << maximaArray[i][j];
+            maxima_outputfile << "\n";
+        }
+    }
+
+    // Now that we have the maxima of the ridge lines, we can filter the lines to determine the
+    // positions of the peaks. Ridge lines are stored as a vector of structs containing the
+    // scale factor and the wavenumber of the point.
+
+    // Array of objects of type ridgePoint to hold ridge lines.
+    std::vector<ridgePoint> ridgeLines;
+
+    filterRidgeLines(ridgeLines,maximaArray);
 
     return 0;
 
