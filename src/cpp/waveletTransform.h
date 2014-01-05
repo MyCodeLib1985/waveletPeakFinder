@@ -2,35 +2,40 @@
 
 const float pi = 3.14159265359;
 
-const int SCALEMAX = 30;
+// Wavelet transform is preformed from a scale factor of 1-SCALEMAX.
+const int SCALEMAX = 60;
 
-float ricker (float t, float sigma) {
+// Ricker wavelet
+float ricker (float t) {
+
+    // Fixed standard deviation of ricker wavelet function.
+    const float sigma = 1;
 
     // Calculate the exponential part of the Ricker wavelet.
     float expPart = -1*pow(t,2)/(2*pow(sigma,2));
 
-    float wavelet = 2/(sqrt(3*sigma) * pow(pi,0.25)) * (1 - (pow(t,2)/pow(sigma,2))
-            * exp(expPart));
+    float wavelet = 2/((sqrt(3*sigma)) * pow(pi,0.25)) * (1 - (pow(t,2)/pow(sigma,2)
+            * exp(expPart)));
 
     return wavelet;
 }
 
-float CWT (std::vector<float> &rawData, float scale, float trans, float t) {
+// Calculate the value of the wavelet transform at (trans,scale).
+float CWT (std::vector<float> &rawData, float scale, float t) {
 
     // Calculate the integral of the mother wavelet function over all space.
 
-    float numericalIntegration = 0;
+    float convolution = 0;
 
     for (int i=0; i<rawData.size()-1;i++) {
-        float delta_lambda = rawData[i+1] - rawData[i];
-        numericalIntegration += delta_lambda * ((ricker(rawData[i]-i/scale,1) +
-                    ricker((rawData[i+1]-i)/scale,1))/2);
+        convolution += (rawData[i]*ricker((rawData[i]-t)/scale));
     }
 
-    return 1/sqrt(fabs(scale)) * (t * numericalIntegration);
+    return (1/sqrt(fabs(scale))) * convolution;
 }
 
-// Wavelet transform function. Currently transforms with fixed Ricker wavelet.
+// Wavelet transform function. Currently transforms with fixed Ricker wavelet. Can be easily
+// modified to use various other mother wavelet functions.
 void waveletTransform (std::vector<float> &rawData, std::vector<std::vector<float> >
         &transformedData) {
 
@@ -38,7 +43,7 @@ void waveletTransform (std::vector<float> &rawData, std::vector<std::vector<floa
     for (int scale=1;scale<SCALEMAX;scale++) {
         std::cout << scale << std::endl;
         for (int j=0;j<rawData.size();j++) {
-            transformedData[scale][j] = CWT(rawData,scale,j,rawData[j]);
+            transformedData[scale][j] = CWT(rawData,scale,rawData[j]);
         }
     }
 }
