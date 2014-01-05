@@ -28,11 +28,13 @@ bool isNewPoint (std::vector<ridgePoint> &ridgeLines, float currentScale, int cu
 // done by checking that there is a point within 'scaleWindow' and 'colWindow' of the point.
 // These values are currently hard coded, but can be made variable as the search broadens at
 // higher scale factors.
-bool isCloseEnough (std::vector<ridgePoint> &ridgeLines, float currentScale, float currentCol) {
+bool isCloseEnough (std::vector<ridgePoint> &ridgeLines, float currentScale, float currentCol,
+        int &lineID) {
 
     for (int i=0;i<ridgeLines.size();i++) {
         if (fabs(ridgeLines[i].scale - currentScale) < 3 && fabs(ridgeLines[i].col -
                     currentCol) < 5) {
+            lineID = i;
             return true;
         }
     }
@@ -41,22 +43,48 @@ bool isCloseEnough (std::vector<ridgePoint> &ridgeLines, float currentScale, flo
 
 }
 
+// Helper function to remove invalid rigde points.
+void cleanPoints (std::vector<ridgePoint> &ridgeLines, int lineID) {
+
+    for (int i=0;i<ridgeLines.size();i++) {
+        if (ridgeLines[i].lineID == lineID) {
+            ridgeLines.erase (ridgeLines.begin() + i);
+        }
+    }
+}
+
 // Filter out valid ridgelines
 void getRidgeLines (std::vector<ridgePoint> &ridgeLines, std::vector<std::vector<float> >
     &maximaArray) {
 
     for (int scale=0;scale<SCALEMAX;scale++) {
         for (int j=0;j<maximaArray[scale].size();j++) {
-            // Check if this point already belongs to a ridge line.
-            if (isNewPoint(ridgeLines, scale, j)) {
-                if (isCloseEnough(ridgeLines, scale, j)) {
-                    ridgePoint point;
-                    point.scale = scale;
-                    point.col = j;
-                    ridgeLines.push_back(point);
+            // For each maxima...
+            if (maximaArray[scale][j] != 0) {
+                // For the first scale value, we want to take every point as the start of a
+                // ridge line.
+                if (scale == 0) {
+                        ridgePoint point;
+                        point.scale = scale;
+                        point.col = j;
+                        point.lineID = j;
+                        ridgeLines.push_back(point);
+                }
+                // For each subsequent maximum, if this point is not currently used in a ridge
+                // line and if it is close enough to a previous point to be considered part of
+                // the same line, add it to the points vector.
+                if (isNewPoint(ridgeLines, scale, j)) {
+                    int lineID = 0;
+                    if (isCloseEnough(ridgeLines, scale, j, lineID)) {
+                        ridgePoint point;
+                        point.scale = scale;
+                        point.col = j;
+                        point.lineID = lineID;
+                        ridgeLines.push_back(point);
+
+                    }
                 }
             }
         }
     }
-
 }
