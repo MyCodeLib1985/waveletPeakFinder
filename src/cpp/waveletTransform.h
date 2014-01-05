@@ -3,35 +3,35 @@
 const float pi = 3.14159265359;
 
 // Wavelet transform is preformed from a scale factor of 1-SCALEMAX.
-const int SCALEMAX = 60;
+const int SCALEMAX = 30;
 
-// Ricker wavelet
-float ricker (float t) {
+std::vector<float> rickerVector (1024,0);
 
-    // Fixed standard deviation of ricker wavelet function.
-    const float sigma = 1;
+// Populate the vector for the Ricker wavelet at the appropriate scale.
+void rickerArray (std::vector<float> &rickerVector, float scale) {
 
-    // Calculate the exponential part of the Ricker wavelet.
-    float expPart = -1*pow(t,2)/(2*pow(sigma,2));
+    float sigma = 1;
 
-    float wavelet = 2/((sqrt(3*sigma)) * pow(pi,0.25)) * (1 - (pow(t,2)/pow(sigma,2)
-            * exp(expPart)));
-
-    return wavelet;
+    for (int i=0;i<rickerVector.size();i++) {
+        float expPart = -1*pow((i-512)/scale,2)/(2*pow(sigma,2));
+        rickerVector[i] = 2/((sqrt(3*sigma)) * pow(pi,0.25)) * ((1 -
+                (pow((i-512)/scale,2)/pow(sigma,2))) * exp(expPart));
+    }
 }
 
 // Calculate the value of the wavelet transform at (trans,scale).
-float CWT (std::vector<float> &rawData, float scale, float t) {
+void convolution (std::vector<float> &rawData, std::vector<float> &rickerVector,
+        std::vector<std::vector<float> > &transformedData, float scale) {
 
-    // Calculate the integral of the mother wavelet function over all space.
-
-    float convolution = 0;
-
-    for (int i=0; i<rawData.size()-1;i++) {
-        convolution += (rawData[i]*ricker((rawData[i]-t)/scale));
+    // Calculate the convolution of the wavelet function and the data set at the current scale
+    // value.
+    for (int i=0; i<rawData.size();i++) {
+        for (int j=0; j<rickerVector.size();j++) {
+            if ((i - j) > 0 | (i - j) < 1023) {
+                transformedData[scale][i] += rawData[i-j] * rickerVector[j];
+            }
+        }
     }
-
-    return (1/sqrt(fabs(scale))) * convolution;
 }
 
 // Wavelet transform function. Currently transforms with fixed Ricker wavelet. Can be easily
@@ -42,8 +42,7 @@ void waveletTransform (std::vector<float> &rawData, std::vector<std::vector<floa
     // Calculate the wavelet transform from scales 1-SCALEMAX
     for (int scale=1;scale<SCALEMAX;scale++) {
         std::cout << scale << std::endl;
-        for (int j=0;j<rawData.size();j++) {
-            transformedData[scale][j] = CWT(rawData,scale,rawData[j]);
-        }
+        rickerArray(rickerVector,scale);
+        convolution(rawData,rickerVector,transformedData, scale);
     }
 }
