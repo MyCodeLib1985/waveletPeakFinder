@@ -43,7 +43,7 @@ bool isCloseEnough (std::vector<ridgePoint> &ridgeLines, float currentScale, flo
 
 }
 
-// Helper function to remove invalid rigde points.
+// Helper function to remove invalid ridge points.
 void cleanPoints (std::vector<ridgePoint> &ridgeLines, int lineID) {
 
     for (int i=0;i<ridgeLines.size();i++) {
@@ -59,10 +59,11 @@ void getRidgeLines (std::vector<ridgePoint> &ridgeLines, std::vector<std::vector
 
     for (int scale=0;scale<SCALEMAX;scale++) {
         for (int j=0;j<maximaArray[scale].size();j++) {
-            // For each maxima...
+            // Every valid ridge line should start from the lowest scale factor. So we start
+            // with every maxima at min(scale). First check if we have a valid data point.
             if (maximaArray[scale][j] != 0) {
-                // For the first scale value, we want to take every point as the start of a
-                // ridge line.
+                // If we are at the lowest scale factor, we want to take every point as the
+                // start of a ridge line.
                 if (scale == 0) {
                         ridgePoint point;
                         point.scale = scale;
