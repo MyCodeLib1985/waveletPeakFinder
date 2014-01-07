@@ -163,6 +163,7 @@ def getPeaks(waveNumbers,intensities):
     # Take the CWT of the spectra. Trim the result to remove padding.
     waveletCoeff = signal.cwt(intensities, signal.ricker, \
                                    np.linspace(lowerBound,upperBound,steps))
+
     # Flip the matrix so the highest wavelet coefficient is the top row
     waveletCoeff = np.flipud(waveletCoeff)
 
