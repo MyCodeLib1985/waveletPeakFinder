@@ -1,91 +1,75 @@
-// Filter valid ridge lines from maxima found in 2D wavelet coefficient array.
-
+// Filter valid ridge lines from maxima found in 2D wavelet coefficient array. Should be in
+// header file.
 struct ridgePoint {
 
-        float scale;
-        int col;
-        int lineID;
+    int col;
+    int scale;
 
-    };
+};
 
-// Helper function to determine whether we have used this point already. Points can only belong
-// to one ridgeline.
-bool isNewPoint (std::vector<ridgePoint> &ridgeLines, float currentScale, int currentCol) {
+void buildRidgeLine (std::vector<ridgePoint> &ridgeLine, const std::vector<std::vector<float> >
+        &maximaArray) {
 
-    // For the current ridge point, check to see if there is a ridge point close enough to
-    // justify continuing the line.
-    for (int i=0;i<ridgeLines.size();i++) {
-        if (ridgeLines[i].scale == currentScale & ridgeLines[i].col == currentCol) {
-            return false;
-        }
-    }
+    // Define the window sizes in which to search for new ridge points. Keep adding ridge
+    // points until we reach the maximum scale value or until no point is found within the
+    // window.
+    int colWindow = 5;
+    int scaleWindow = 3;
 
-    return true;
+    // Get the starting column. We know the starting row value is that of the lowest scale
+    // value.
+    int currentCol = ridgeLine[0].col;
+    int currentScale = ridgeLine[0].scale;
 
-}
+    // Switch to terminate search when we can't find anymore ridge points.
+    bool keepSearching = true;
 
-// Helper function to check if new ridge line points belong to any nearby ridge lines. This is
-// done by checking that there is a point within 'scaleWindow' and 'colWindow' of the point.
-// These values are currently hard coded, but can be made variable as the search broadens at
-// higher scale factors.
-bool isCloseEnough (std::vector<ridgePoint> &ridgeLines, float currentScale, float currentCol,
-        int &lineID) {
-
-    for (int i=0;i<ridgeLines.size();i++) {
-        if (fabs(ridgeLines[i].scale - currentScale) < 3 && fabs(ridgeLines[i].col -
-                    currentCol) < 5) {
-            lineID = i;
-            return true;
-        }
-    }
-
-    return false;
-
-}
-
-// Helper function to remove invalid ridge points.
-void cleanPoints (std::vector<ridgePoint> &ridgeLines, int lineID) {
-
-    for (int i=0;i<ridgeLines.size();i++) {
-        if (ridgeLines[i].lineID == lineID) {
-            ridgeLines.erase (ridgeLines.begin() + i);
-        }
-    }
-}
-
-// Filter out valid ridgelines
-void getRidgeLines (std::vector<ridgePoint> &ridgeLines, std::vector<std::vector<float> >
-    &maximaArray) {
-
-    for (int scale=0;scale<SCALEMAX;scale++) {
-        for (int j=0;j<maximaArray[scale].size();j++) {
-            // Every valid ridge line should start from the lowest scale factor. So we start
-            // with every maxima at min(scale). First check if we have a valid data point.
-            if (maximaArray[scale][j] != 0) {
-                // If we are at the lowest scale factor, we want to take every point as the
-                // start of a ridge line.
-                if (scale == 0) {
-                        ridgePoint point;
-                        point.scale = scale;
-                        point.col = j;
-                        point.lineID = j;
-                        ridgeLines.push_back(point);
-                }
-                // For each subsequent maximum, if this point is not currently used in a ridge
-                // line and if it is close enough to a previous point to be considered part of
-                // the same line, add it to the points vector.
-                if (isNewPoint(ridgeLines, scale, j)) {
-                    int lineID = 0;
-                    if (isCloseEnough(ridgeLines, scale, j, lineID)) {
-                        ridgePoint point;
-                        point.scale = scale;
-                        point.col = j;
-                        point.lineID = lineID;
-                        ridgeLines.push_back(point);
-
-                    }
+    // We adjust the range of the for loops to prevent running over the edges of the array. By
+    // comparing the previous and current scales we can determine if we have found any new
+    // points, if not, we can break.
+    while (keepSearching) {
+        int previousScale = currentScale;
+        for (int i=scaleWindow;i<SCALEMAX-scaleWindow;i++) {
+            for (int j=colWindow;j<maximaArray[i].size()-colWindow;j++) {
+                // If a ridge point exists, add it to the ridge vector.
+                if (maximaArray[i][j] != 0) {
+                    ridgePoint newPoint;
+                    newPoint.scale = i;
+                    newPoint.col = j;
+                    ridgeLine.push_back(newPoint);
+                    // Shift the window in which to look for new points.
+                    currentCol = j;
+                    currentScale = i;
                 }
             }
         }
+        // If we've not found a point and moved onto another scale value, terminate the search.
+        if (previousScale == currentScale) {
+            keepSearching = false;
+        }
+    }
+}
+
+void getRidgeLines (std::vector<std::vector<ridgePoint> > &ridgeLines,
+        const std::vector<std::vector<float> > &maximaArray) {
+
+    // Get the coordinates of all the points at the lowest scale value. All valid ridge lines
+    // should terminate at the lowest scale value.
+    for (int j=0;j<maximaArray[0].size();j++) {
+        if (maximaArray[0][j] != 0) {
+            // Start a new vector for each point.
+            std::vector<ridgePoint> newRidge;
+            ridgePoint newPoint;
+            newPoint.scale = 0;
+            newPoint.col = j;
+            newRidge.push_back(newPoint);
+            ridgeLines.push_back(newRidge);
+            }
+        }
+
+    // Now that we have the starting points of all the ridge lines, we want to trace each
+    // ridge line, adding all of the points found to line vector.
+    for (int line=0;line<ridgeLines.size();line++) {
+        buildRidgeLine(ridgeLines[line],maximaArray);
     }
 }
