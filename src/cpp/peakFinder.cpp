@@ -2,6 +2,7 @@
 #include <fstream>
 #include <sstream>
 #include <vector>
+#include <deque>
 #include "waveletTransform.h"
 #include "cwtArrayTools.h"
 #include "ridgelineTools.h"
@@ -85,10 +86,30 @@ int main(int argc, char** argv) {
     // scale factor and the wavenumber of the point.
 
     // Array of objects of type ridgePoint to hold ridge lines.
-    std::vector<ridgePoint> ridgeLines;
+    std::vector<std::vector<ridgePoint> > ridgeLines;
 
-    filterRidgeLines(ridgeLines,maximaArray);
+    // Extract the ridge lines from the maxima array.
+    getRidgeLines(ridgeLines,maximaArray);
 
+    // Rebuild filtered ridgeline array for debugging
+    std::vector<std::vector<float> > filteredArray(SCALEMAX,
+            std::vector<float>(rawData_intensities.size(),0));
+
+    // write the wavelet transform matrix to file for plotting/debugging.
+    std::ofstream filtered_outputfile ("Filteredmaximamatrix.txt");
+    for (int i=0;i<filteredArray.size();i++) {
+        for (int j=0;j<filteredArray[i].size();j++) {
+            filtered_outputfile << filteredArray[i][j];
+            filtered_outputfile << "\n";
+        }
+    }
+
+    // Plot wavelet to file for debugging.
+    std::ofstream ricker_outputfile ("ricker.txt");
+    for (int i=0;i<rickerVector.size();i++) {
+        ricker_outputfile << rickerVector[i];
+        ricker_outputfile << "\n";
+    }
     return 0;
 
 }
