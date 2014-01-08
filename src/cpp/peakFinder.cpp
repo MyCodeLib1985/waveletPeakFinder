@@ -3,9 +3,11 @@
 #include <sstream>
 #include <vector>
 #include <deque>
+#include <cassert>
 #include "waveletTransform.h"
 #include "cwtArrayTools.h"
 #include "ridgelineTools.h"
+#include "fft.cpp"
 
 int main(int argc, char** argv) {
 
@@ -104,12 +106,5 @@ int main(int argc, char** argv) {
         }
     }
 
-    // Plot wavelet to file for debugging.
-    std::ofstream ricker_outputfile ("ricker.txt");
-    for (int i=0;i<rickerVector.size();i++) {
-        ricker_outputfile << rickerVector[i];
-        ricker_outputfile << "\n";
-    }
     return 0;
-
 }
