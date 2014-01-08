@@ -49,17 +49,32 @@ void vectorProduct (std::vector<float> &vector1, std::vector<float> &vector2,
 }
 
 // Replace with FFT...Common son!
-void dft (std::vector<float> &inputData, std::vector<float> &outputData) {
+void dft (std::vector<float> &inputdata, std::vector<float> &outputdata) {
 
-    // Don't bother calculating complex parts.
-    std::vector<float> cosTerms (inputData.size(),0);
 
-    for (int i=0;i<inputData.size();i++) {
-        for (int j=0;j<inputData.size();j++) {
-            float trigTerm = 2*pi * i * j/inputData.size();
-            cosTerms[i] += inputData[j]*cos(trigTerm);
-            outputData[i] = cosTerms[i];
+    for (int i=0;i<inputdata.size();i++) {
+        float temp = 0;
+        for (int j=0;j<inputdata.size();j++) {
+            float trigterm = 2*pi * i * j/inputdata.size();
+            temp += inputdata[j]*cos(trigterm);
         }
+        outputdata[i] = temp;
+    }
+}
+
+void idft (std::vector<float> &inputdata, std::vector<float> &outputdata) {
+
+    // don't bother calculating complex parts.
+
+    float norm = 1.0/inputdata.size();
+
+    for (int i=0;i<inputdata.size();i++) {
+        float temp = 0;
+        for (int j=0;j<inputdata.size();j++) {
+            float trigterm = 2*pi * i * j/inputdata.size();
+            temp += norm * inputdata[j]*cos(trigterm);
+        }
+        outputdata[i] = temp;
     }
 }
 
@@ -81,10 +96,12 @@ void waveletTransform (std::vector<float> &rawData, std::vector<std::vector<floa
         rickerArray(rickerVector,scale);
         std::vector<float> fftRickerArray (rawData.size(),0);
         std::vector<float> output (rawData.size(),0);
+        std::vector<float> transformedOutput (rawData.size(),0);
         dft(rickerVector,fftRickerArray);
-        vectorProduct(rickerVector,fftOutput,output);
+        vectorProduct(fftRickerArray,fftOutput,output);
+        idft(output,transformedOutput);
         for (int j=0;j<rawData.size();j++) {
-            transformedData[scale][j] = output[j];
+            transformedData[scale][j] = transformedOutput[j];
         }
 
     }
