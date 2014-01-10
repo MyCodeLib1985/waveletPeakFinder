@@ -58,7 +58,7 @@ int main(int argc, char** argv) {
     // need except for illustration purposes.
     std::ofstream outputFile ("waveletMatrix.txt");
     for (int i=0;i<waveletSpace.size();i++) {
-        for (int j=0;j<waveletSpace[i].size();j++) {
+        for (int j=waveletSpace[i].size();j>0;j--) {
             outputFile << waveletSpace[i][j];
             outputFile << "\n";
         }
