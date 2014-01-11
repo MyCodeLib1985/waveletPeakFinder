@@ -1,4 +1,8 @@
 #include <cmath>
+#include <vector>
+#include <wavelets.h>
+#include <fft.h>
+#include <vectorProduct.h>
 
 void waveletTransform (std::vector<float> &rawData,
         std::vector<std::vector<float> > &transformedData) {
