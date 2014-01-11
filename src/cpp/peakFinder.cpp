@@ -2,12 +2,7 @@
 #include <fstream>
 #include <sstream>
 #include <vector>
-#include <deque>
-#include <cassert>
-#include "waveletTransform.h"
-#include "cwtArrayTools.h"
 #include "ridgelineTools.h"
-#include "fft.h"
 #include "CWT.h"
 
 int main(int argc, char** argv) {
