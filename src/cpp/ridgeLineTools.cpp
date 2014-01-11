@@ -1,15 +1,6 @@
 #include <vector>
 #include "const.h"
 
-// Filter valid ridge lines from maxima found in 2D wavelet coefficient array. Should be in
-// header file.
-struct ridgePoint {
-
-    int col;
-    int scale;
-
-};
-//
 // Find local maxima of CWT matrix using a sliding window of size 'windowSize'. Leaving this
 // hard coded to 2 is ok, but it is easy enough to include a variable window.
 void findMaxima (std::vector<std::vector<float> > &maximaArray, std::vector<std::vector<float> >
