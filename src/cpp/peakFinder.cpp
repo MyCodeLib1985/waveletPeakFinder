@@ -7,7 +7,8 @@
 #include "waveletTransform.h"
 #include "cwtArrayTools.h"
 #include "ridgelineTools.h"
-#include "fft.cpp"
+#include "fft.h"
+#include "CWT.h"
 
 int main(int argc, char** argv) {
 
