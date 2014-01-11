@@ -2,8 +2,9 @@
 #include <fstream>
 #include <sstream>
 #include <vector>
-#include "ridgelineTools.h"
-#include "CWT.h"
+#include "include/ridgelineTools.h"
+#include "include/CWT.h"
+#include "include/const.h"
 
 int main(int argc, char** argv) {
 
