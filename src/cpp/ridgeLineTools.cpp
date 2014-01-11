@@ -1,5 +1,6 @@
 #include <vector>
 #include "const.h"
+#include "ridgelineTools.h"
 
 // Find local maxima of CWT matrix using a sliding window of size 'windowSize'. Leaving this
 // hard coded to 2 is ok, but it is easy enough to include a variable window.
