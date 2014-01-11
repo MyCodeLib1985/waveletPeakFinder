@@ -1,8 +1,6 @@
 #include <vector>
 #include <cmath>
 
-const float pi = 3.14159265359;
-
 void dft(std::vector<float> &inputData, std::vector<float> &outputData) {
 
     for (int i=0;i<inputData.size();i++) {
