@@ -1,5 +1,6 @@
 #include <vector>
 #include <cmath>
+#include "const.h"
 
 void dft(std::vector<float> &inputData, std::vector<float> &outputData) {
 
