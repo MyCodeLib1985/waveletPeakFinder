@@ -1,4 +1,5 @@
 #include <cmath>
+#include "fft.h"
 
 const float pi = 3.14159265359;
 
@@ -47,49 +48,6 @@ void vectorProduct (std::vector<float> &vector1, std::vector<float> &vector2,
     }
 }
 
-// Replace with FFT...Common son!
-void dft (std::vector<float> &inputdata, std::vector<float> &outputdata) {
-
-
-    for (int i=0;i<inputdata.size();i++) {
-        float temp = 0;
-        for (int j=0;j<inputdata.size();j++) {
-            float trigterm = 2*pi * i * j/inputdata.size();
-            temp += inputdata[j]*cos(trigterm);
-        }
-        outputdata[i] = temp;
-    }
-}
-
-void idft (std::vector<float> &inputdata, std::vector<float> &outputdata) {
-
-    // don't bother calculating complex parts.
-    float norm = 1.0/inputdata.size();
-
-    for (int i=0;i<inputdata.size();i++) {
-        float temp = 0;
-        for (int j=0;j<inputdata.size();j++) {
-            float trigterm = 2*pi * i * j/inputdata.size();
-            temp += norm * inputdata[j]*cos(trigterm);
-        }
-        outputdata[i] = temp;
-    }
-}
-
-void padData(std::vector<float> &input,std::vector<float> &output) {
-
-    // Check if data length is an even number.
-    if (input.size() % 2 != 0) {
-        input.push_back(0);
-    }
-
-    // Pad zeros on either side of data set to 2N
-    for (int i=0;i<input.size()*2;i++) {
-        if (i > input.size()/4 || i < input.size()/2 + input.size()/4) {
-            output[i] = input[i];
-        }
-    }
-}
 
 // Wavelet transform function. Currently transforms with fixed Ricker wavelet. Can be easily
 // modified to use various other mother wavelet functions.
