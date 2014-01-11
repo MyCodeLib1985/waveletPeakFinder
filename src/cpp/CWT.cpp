@@ -1,8 +1,10 @@
 #include <cmath>
 #include <vector>
-#include <wavelets.h>
-#include <fft.h>
-#include <vectorProduct.h>
+#include "wavelets.h"
+#include "fft.h"
+#include "vectorProduct.h"
+#include "const.h"
+#include "cwt.h"
 
 void waveletTransform (std::vector<float> &rawData,
         std::vector<std::vector<float> > &transformedData) {
@@ -23,7 +25,6 @@ void waveletTransform (std::vector<float> &rawData,
 
     // Calculate the wavelet transform from scales 1-SCALEMAX
     for (int scale=1;scale<SCALEMAX;scale++) {
-        std::cout << scale << std::endl;
         rickerArray(rickerVector,scale);
         std::vector<float> fftRickerArray (rawDataPadded.size(),0);
         std::vector<float> output (rawDataPadded.size(),0);
