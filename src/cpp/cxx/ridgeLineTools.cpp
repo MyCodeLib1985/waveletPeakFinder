@@ -19,6 +19,7 @@ void findRidgePoints (std::deque<ridgePoint> &ridgeCoords, const std::vector<std
                         ridgePoint newPoint;
                         newPoint.scale = i;
                         newPoint.col = j;
+                        newPoint.CWTCoeff = waveletSpace[i][j];
                         ridgeCoords.push_back(newPoint);
             }
         }
@@ -58,11 +59,9 @@ void findRidgeLines (std::deque<ridgePoint> &ridgeCoords, std::vector<std::deque
         }
     }
 
-    // We now build the ridge points from the starting lines. Checking if each point exists in a
-    // ridge line already. This could be sped up greatly by removed points as they are added to
-    // each line, so the search becomes smaller and we don't have to check every line in each
-    // iteration.
-    for (int i=0;i<ridgeLines.size();i++) {
+    // We now build the ridge lines from the starting points. Checking if each
+    // point exists in a ridge line already.
+     for (int i=0;i<ridgeLines.size();i++) {
         // Initialise the starting row and column.
         int currentCol = ridgeLines[i][0].col;
         int currentScale = ridgeLines[i][0].scale;
@@ -90,27 +89,15 @@ void getRidgeLines (std::vector<std::deque<ridgePoint> > &ridgeLines,
 
     findRidgeLines(ridgeCoords,ridgeLines);
 
-    // ************** DEBUGGING **************
-
-    // Rebuild filtered ridgeline array for debugging
-    std::vector<std::vector<float> > filteredArray(SCALEMAX,
-            std::vector<float>(maximaArray[0].size(),0));
-
-    // Write ridge points to file for debugging
-    std::ofstream filtered_outputfile ("filteredArray.txt");
-    for (int i=0;i<ridgeLines.size();i++) {
-        for (int j=0;j<ridgeLines[i].size();j++) {
-            filteredArray[ridgeLines[i][j].scale][ridgeLines[i][j].col] = 1;
-        }
-    }
-
-    // Write maxima array to file
-    for (int i=0;i<filteredArray.size();i++) {
-        for (int j=0;j<filteredArray[i].size();j++) {
-            filtered_outputfile << filteredArray[i][j];
-            filtered_outputfile << "\n";
-        }
-    }
-
-    // ************** DEBUGGING **************
 }
+
+// Extract information about the peaks for each ridge line. We want; the peak
+// center, the scale factor at which the maxima occurs and the length of the
+// ridge line that contributes to the peak.
+void extractPeakInfo (std::vector<std::deque<ridgePoint> > &ridgeLines,
+        std::vector<peakInfo> &peaksFound) {
+
+}
+
+
+
