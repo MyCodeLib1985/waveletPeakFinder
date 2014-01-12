@@ -1,10 +1,10 @@
 #include <cmath>
 #include <vector>
-#include "include/wavelets.h"
-#include "include/fft.h"
-#include "include/vectorProduct.h"
-#include "include/const.h"
-#include "include/cwt.h"
+#include "../include/wavelets.h"
+#include "../include/fft.h"
+#include "../include/vectorProduct.h"
+#include "../include/magicNums.h"
+#include "../include/cwt.h"
 
 void waveletTransform (std::vector<float> &rawData,
         std::vector<std::vector<float> > &transformedData) {
