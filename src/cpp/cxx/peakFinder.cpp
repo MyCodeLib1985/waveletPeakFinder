@@ -55,25 +55,10 @@ int main(int argc, char** argv) {
     // Take the wavelet transform of the data.
     waveletTransform(rawData_intensities, waveletSpace);
 
-    // Write the wavelet transform matrix to file for plotting/debugging. These are not really
-    // need except for illustration purposes.
-    std::ofstream outputFile ("waveletMatrix.txt");
-    for (int i=0;i<waveletSpace.size();i++) {
-        for (int j=waveletSpace[i].size();j>0;j--) {
-            outputFile << waveletSpace[i][j];
-            outputFile << "\n";
-        }
-    }
+    // Extract the peaks from wavelet space.
+    std::vector<peakInfo> peaksFound;
 
-    // Now that we have the maxima of the ridge lines, we can filter the lines to determine the
-    // positions of the peaks. Ridge lines are stored as a vector of structs containing the
-    // scale factor and the wavenumber of the point.
-
-    // Array of objects of type ridgePoint to hold ridge lines.
-    std::vector<std::deque<ridgePoint> > ridgeLines;
-
-    // Extract the ridge lines from the maxima array.
-    getRidgeLines(ridgeLines,waveletSpace);
+    extractPeakInfo (waveletSpace,peaksFound);
 
     return 0;
 }

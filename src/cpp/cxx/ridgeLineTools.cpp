@@ -67,11 +67,9 @@ void findRidgeLines (std::deque<ridgePoint> &ridgeCoords, std::vector<std::deque
         int currentScale = ridgeLines[i][0].scale;
         for (int j=0;j<ridgeCoords.size();j++) {
             int scaleDiff = ridgeCoords[j].scale - currentScale;
-            std::cout << scaleDiff << std::endl;
             int colDiff = abs(currentCol - ridgeCoords[j].col);
             if ((scaleDiff > 0 && scaleDiff < scaleWindow) && (colDiff < colWindow)
                     && !is_used(ridgeLines, ridgeCoords[j])) {
-                std::cout << currentScale << std::endl;
                 ridgeLines[i].push_back(ridgeCoords[j]);
                 currentCol = ridgeCoords[j].col;
                 currentScale = ridgeCoords[j].scale;
@@ -91,13 +89,35 @@ void getRidgeLines (std::vector<std::deque<ridgePoint> > &ridgeLines,
 
 }
 
-// Extract information about the peaks for each ridge line. We want; the peak
-// center, the scale factor at which the maxima occurs and the length of the
-// ridge line that contributes to the peak.
-void extractPeakInfo (std::vector<std::deque<ridgePoint> > &ridgeLines,
-        std::vector<peakInfo> &peaksFound) {
+bool cmp(const ridgePoint& lhs, const ridgePoint& rhs) {
+
+  return lhs.CWTCoeff < rhs.CWTCoeff;
 
 }
 
+// Extract information about the peaks for each ridge line. We want; the peak
+// center, the scale factor at which the maxima occurs and the length of the
+// ridge line that contributes to the peak.
+void extractPeakInfo (const std::vector<std::vector<float> > &waveletSpace,
+        std::vector<peakInfo> &peaksFound) {
 
+    std::deque<ridgePoint> ridgeCoords;
+    std::vector<std::deque<ridgePoint> > ridgeLines;
 
+    findRidgePoints (ridgeCoords,waveletSpace);
+
+    findRidgeLines (ridgeCoords, ridgeLines);
+
+    for (int i=0;i<ridgeLines.size();i++) {
+        peakInfo newPeak;
+        std::deque<ridgePoint>::iterator scaleMaxIt =
+            std::max_element(ridgeLines[i].begin(), ridgeLines[i].end(),cmp);
+        newPeak.scaleMax = scaleMaxIt->CWTCoeff;
+        newPeak.ridgeLength = ridgeLines[i].size();
+        int peakMax = distance(ridgeLines[i].begin(),scaleMaxIt);
+        newPeak.center = ridgeLines[i][peakMax].col;
+        peaksFound.push_back(newPeak);
+        std::cout << ridgeLines[i][peakMax].col << std::endl;
+        std::cout << newPeak.center << std::endl;
+    }
+}
