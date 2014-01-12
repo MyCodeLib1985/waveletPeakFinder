@@ -75,25 +75,5 @@ int main(int argc, char** argv) {
     // Extract the ridge lines from the maxima array.
     getRidgeLines(ridgeLines,waveletSpace);
 
-    // Rebuild filtered ridgeline array for debugging
-    std::vector<std::vector<float> > filteredArray(SCALEMAX,
-            std::vector<float>(rawData_intensities.size(),0));
-
-    // write the wavelet transform matrix to file for plotting/debugging.
-    std::ofstream filtered_outputfile ("Filteredmaximamatrix.txt");
-    for (int i=0;i<ridgeLines.size();i++) {
-        for (int j=0;j<ridgeLines[i].size();j++) {
-            filteredArray[ridgeLines[i][j].scale][ridgeLines[i][j].col] = 1;
-        }
-    }
-
-    for (int i=0;i<filteredArray.size();i++) {
-        for (int j=0;j<filteredArray[i].size();j++) {
-            filtered_outputfile << filteredArray[i][j];
-            filtered_outputfile << '\n';
-        }
-    }
-
-
     return 0;
 }
