@@ -1,13 +1,23 @@
-#ifndef _RIDGELINETOOLS_
-#define _RIDGELINETOOLS_
+#ifndef _INCLUDE_RIDGELINETOOLS_
+#define _INCLUDE_RIDGELINETOOLS_
 
-void findMaxima (std::vector<std::vector<float> >,
-        std::vector<std::vector<float> >);
+struct ridgePoint {
 
-void buildRidgeLine (std::vector<ridgePoint>, const
-        std::vector<std::vector<float> >);
+    int col;
+    int scale;
+    int CWTCoeff;
 
-void getRidgeLines (std::vector<std::vector<ridgePoint> >, const
-        std::vector<std::vector<float> >);
+};
+
+struct peakInfo {
+
+    int scaleMax;
+    int center;
+    int ridgeLength;
+
+};
+
+void getRidgeLines (std::vector<std::deque<ridgePoint> > &, const
+        std::vector<std::vector<float> > &);
 
 #endif
