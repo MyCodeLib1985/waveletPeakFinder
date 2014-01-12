@@ -3,6 +3,7 @@
 #include <deque>
 //*** Only needed for debugging
 #include <iostream>
+#include <fstream>
 //***
 #include "../include/magicNums.h"
 #include "../include/ridgeLineTools.h"
@@ -16,7 +17,7 @@ void findRidgePoints (std::deque<ridgePoint> &ridgeCoords, const std::vector<std
             if (waveletSpace[i][j] > waveletSpace[i-1][j-1] &&
                     waveletSpace[i][j] > waveletSpace[i+1][j+1]) {
                         ridgePoint newPoint;
-                        newPoint.scale = 0;
+                        newPoint.scale = i;
                         newPoint.col = j;
                         ridgeCoords.push_back(newPoint);
             }
@@ -67,11 +68,14 @@ void findRidgeLines (std::deque<ridgePoint> &ridgeCoords, std::vector<std::deque
         int currentScale = ridgeLines[i][0].scale;
         for (int j=0;j<ridgeCoords.size();j++) {
             int scaleDiff = ridgeCoords[j].scale - currentScale;
-            int colDiff = abs(ridgeCoords[j].col - currentCol);
-            if (scaleDiff > 0 && scaleDiff < scaleWindow && colDiff < colWindow) {
-                ridgeLines[i].push_back(ridgeCoords[i]);
-                currentCol = ridgeCoords[i].col;
-                currentScale = ridgeCoords[i].scale;
+            std::cout << scaleDiff << std::endl;
+            int colDiff = abs(currentCol - ridgeCoords[j].col);
+            if ((scaleDiff > 0 && scaleDiff < scaleWindow) && (colDiff < colWindow)
+                    && !is_used(ridgeLines, ridgeCoords[j])) {
+                std::cout << currentScale << std::endl;
+                ridgeLines[i].push_back(ridgeCoords[j]);
+                currentCol = ridgeCoords[j].col;
+                currentScale = ridgeCoords[j].scale;
             }
         }
     }
@@ -86,4 +90,27 @@ void getRidgeLines (std::vector<std::deque<ridgePoint> > &ridgeLines,
 
     findRidgeLines(ridgeCoords,ridgeLines);
 
+    // ************** DEBUGGING **************
+
+    // Rebuild filtered ridgeline array for debugging
+    std::vector<std::vector<float> > filteredArray(SCALEMAX,
+            std::vector<float>(maximaArray[0].size(),0));
+
+    // Write ridge points to file for debugging
+    std::ofstream filtered_outputfile ("filteredArray.txt");
+    for (int i=0;i<ridgeLines.size();i++) {
+        for (int j=0;j<ridgeLines[i].size();j++) {
+            filteredArray[ridgeLines[i][j].scale][ridgeLines[i][j].col] = 1;
+        }
+    }
+
+    // Write maxima array to file
+    for (int i=0;i<filteredArray.size();i++) {
+        for (int j=0;j<filteredArray[i].size();j++) {
+            filtered_outputfile << filteredArray[i][j];
+            filtered_outputfile << "\n";
+        }
+    }
+
+    // ************** DEBUGGING **************
 }
