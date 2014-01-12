@@ -1,7 +1,7 @@
 #include <vector>
 #include <cmath>
-#include "include/const.h"
-#include "include/fft.h"
+#include "../include/magicNums.h"
+#include "../include/fft.h"
 
 void dft(std::vector<float> &inputData, std::vector<float> &outputData) {
 
