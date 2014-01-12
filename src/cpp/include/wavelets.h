@@ -1,6 +1,6 @@
-#ifndef _INCLUDE_wavelets_
-#define _INCLUDE_wavelets_
+#ifndef _INCLUDE_WAVELETS_
+#define _INCLUDE_WAVELETS_
 
-void rickerArray (std::vector<float>, float);
+void rickerArray (std::vector<float> &, float);
 
 #endif

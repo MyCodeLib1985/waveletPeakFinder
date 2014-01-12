@@ -20,4 +20,7 @@ struct peakInfo {
 void getRidgeLines (std::vector<std::deque<ridgePoint> > &, const
         std::vector<std::vector<float> > &);
 
+void extractPeakInfo (const std::vector<std::vector<float> > &maximaArray,
+        std::vector<peakInfo> &peaksFound);
+
 #endif
