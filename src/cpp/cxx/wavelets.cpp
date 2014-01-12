@@ -1,7 +1,7 @@
 #include <cmath>
 #include <vector>
-#include "include/const.h"
-#include "include/wavelets.h"
+#include "../include/magicNums.h"
+#include "../include/wavelets.h"
 
 // Populate the vector for the Ricker wavelet at the appropriate scale.
 void rickerArray (std::vector<float> &rickerVector, float scale) {
