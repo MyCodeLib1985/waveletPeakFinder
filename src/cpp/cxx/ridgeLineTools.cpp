@@ -8,7 +8,7 @@
 #include "../include/ridgeLineTools.h"
 
 // Build deque of ridgeline points
-void findRidgePoints (std::deque<ridgePoint> &ridgeCoords, std::vector<std::vector<float> >
+void findRidgePoints (std::deque<ridgePoint> &ridgeCoords, const std::vector<std::vector<float> >
         &waveletSpace) {
 
     for (int i=1;i<SCALEMAX-1;i++) {
@@ -77,83 +77,13 @@ void findRidgeLines (std::deque<ridgePoint> &ridgeCoords, std::vector<std::deque
     }
 }
 
-void findMaxima (std::vector<std::vector<float> > &maximaArray, std::vector<std::vector<float> >
-        &waveletSpace) {
-
-    for (int i=1;i<SCALEMAX-1;i++) {
-        for (int j=1;j<waveletSpace[i].size()-1;j++) {
-            if (waveletSpace[i][j] > waveletSpace[i-1][j-1] &&
-                    waveletSpace[i][j] > waveletSpace[i+1][j+1]) {
-                        //maximaArray[i][j] = waveletSpace[i][j];
-                        maximaArray[i][j] = 1;
-            }
-        }
-    }
-}
-
-void buildRidgeLine (std::vector<ridgePoint> &ridgeLine, const
-        std::vector<std::vector<float> > &maximaArray) {
-
-    // Define the window sizes in which to search for new ridge points. Keep adding ridge
-    // points until we reach the maximum scale value or until no point is found within the
-    // window.
-    int colWindow = 10;
-    int scaleWindow = 5;
-
-    // Get the starting column. We know the starting row value is that of the lowest scale
-    // value.
-    int currentCol = ridgeLine[0].col;
-    int currentScale = ridgeLine[0].scale;
-
-    // Switch to terminate search when we can't find anymore ridge points.
-    bool keepSearching = true;
-
-    while (keepSearching) {
-        int previousScale = currentScale;
-        for (int i=currentScale;i<currentScale+scaleWindow;i++) {
-            std::cout << i << std::endl;
-            for (int j=currentCol-colWindow;j<currentCol+colWindow;j++) {
-                if (i > 0 && i < SCALEMAX && j > 0 && j < maximaArray.size()) {
-                    // If a ridge point exists, add it to the ridge vector.
-                    if (maximaArray[i][j] != 0) {
-                        ridgePoint newPoint;
-                        newPoint.scale = i;
-                        newPoint.col = j;
-                        ridgeLine.push_back(newPoint);
-                        // Shift the window in which to look for new points.
-                        currentScale = i;
-                        currentCol = j;
-                    }
-                }
-            }
-        }
-        // If we've not found a point and moved onto another scale value, terminate the search.
-        if (previousScale == currentScale) {
-            keepSearching = false;
-        }
-    }
-}
-
-void getRidgeLines (std::vector<std::vector<ridgePoint> > &ridgeLines,
+void getRidgeLines (std::vector<std::deque<ridgePoint> > &ridgeLines,
          const std::vector<std::vector<float> > &maximaArray) {
 
-    // Get the coordinates of all the points at the lowest scale value. All valid ridge lines
-    // should terminate at the lowest scale value.
-    for (int j=0;j<maximaArray[1].size();j++) {
-        if (maximaArray[1][j] != 0) {
-            // Start a new vector for each point.
-            std::vector<ridgePoint> newRidge;
-            ridgePoint newPoint;
-            newPoint.scale = 0;
-            newPoint.col = j;
-            newRidge.push_back(newPoint);
-            ridgeLines.push_back(newRidge);
-            }
-        }
+    std::deque<ridgePoint> ridgeCoords;
 
-    // Now that we have the starting points of all the ridge lines, we want to trace each
-    // ridge line, adding all of the points found to line vector.
-    for (int i=0;i<ridgeLines.size();i++) {
-        buildRidgeLine(ridgeLines[i],maximaArray);
-    }
+    findRidgePoints(ridgeCoords,maximaArray);
+
+    findRidgeLines(ridgeCoords,ridgeLines);
+
 }
